@@ -1,0 +1,45 @@
+name: Bundle (full) – quick test
+
+on:
+  workflow_dispatch:          # click "Run workflow" in Actions
+  push:
+    branches: ["bundle-full/*"]  # optional: auto-run when you push to these branches
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bundle-full-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bundle_full:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout (shallow)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # Gradle action enables dependency & wrapper caching automatically
+      - name: Setup Gradle (with cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      # If your script expects this legacy path, keep the symlink for zero changes
+      - name: Symlink SDK path
+        working-directory: ./buildscripts
+        run: |
+          mkdir -p sdk
+          ln -s "$ANDROID_HOME" ./sdk/android-sdk-linux 2>/dev/null || true
+
+      - name: Make executable & run bundle_full.sh
+        working-directory: ./buildscripts
+        run: |
+          chmod +x bundle_full.sh
+          ./bundle_full.sh  
