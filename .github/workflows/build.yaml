@@ -38,7 +38,6 @@ jobs:
         run: |
           sudo chmod +x bundle_default.sh
           ./bundle_default.sh
-      # TODO(alexmercerind): Figure out this shit.
       - name: Bundle (full)
         working-directory: ./buildscripts
         run: |
@@ -55,7 +54,7 @@ jobs:
           name: artifact
           path: |
             ./buildscripts/*.jar
-            ./buildscripts/deps/media-kit-android-helper/app/build/outputs/apk/release/*.jar
+            ./buildscripts/artifacts/**
       - name: Upload Release
         uses: softprops/action-gh-release@v1
         if: github.ref == 'refs/heads/main'
@@ -65,4 +64,4 @@ jobs:
           tag_name: "vnext"
           files: |
             buildscripts/*.zip
-            buildscripts/deps/media-kit-android-helper/app/build/outputs/apk/release/*.jar
+            buildscripts/artifacts/**
