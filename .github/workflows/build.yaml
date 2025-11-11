@@ -4,7 +4,13 @@ on:
   push:
     branches:
       - main
-
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
 permissions:
   contents: write
 
@@ -32,31 +38,29 @@ jobs:
         run: |
           sudo chmod +x bundle_default.sh
           ./bundle_default.sh
-      # TODO(alexmercerind): Figure out this shit.
-      # - name: Bundle (full)
-      #   working-directory: ./buildscripts
-      #   run: |
-      #     sudo chmod +x bundle_full.sh
-      #     ./bundle_full.sh
-      # - name: Bundle (encoders-gpl)
-      #   working-directory: ./buildscripts
-      #   run: |
-      #     sudo chmod +x bundle_encoders-gpl.sh
-      #     ./bundle_encoders-gpl.sh
+      - name: Bundle (full)
+        working-directory: ./buildscripts
+        run: |
+          sudo chmod +x bundle_full.sh
+          ./bundle_full.sh
+      - name: Bundle (encoders-gpl)
+        working-directory: ./buildscripts
+        run: |
+          sudo chmod +x bundle_encoders-gpl.sh
+          ./bundle_encoders-gpl.sh
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: artifact
           path: |
             ./buildscripts/*.jar
-            ./buildscripts/deps/media-kit-android-helper/app/build/outputs/apk/release/*.jar
+            ./buildscripts/artifacts/**
       - name: Upload Release
         uses: softprops/action-gh-release@v1
-        if: github.ref == 'refs/heads/main'
         with:
-          draft: true
+          draft: false
           prerelease: false
-          tag_name: "vnext"
+          tag_name: "v1.1.7"
           files: |
             buildscripts/*.zip
-            buildscripts/deps/media-kit-android-helper/app/build/outputs/apk/release/*.jar
+            buildscripts/artifacts/**
